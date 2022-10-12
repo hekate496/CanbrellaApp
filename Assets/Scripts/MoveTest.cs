@@ -18,12 +18,12 @@ public class MoveTest : MonoBehaviour
         }
     }
 
-    private void Move(){
+    public void Move(){
         isMoved = true;
         this.transform.DOMove(new Vector3(10f, 0f, 0f), 0.3f);
     }
 
-    private void Back(){
+    public void Back(){
         isMoved = false;
         this.transform.DOMove(new Vector3(0f, 0f, 0f), 0.3f);
     }
