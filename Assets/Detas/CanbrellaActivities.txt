@@ -1,0 +1,1 @@
+date, time, state, gps_x, gps_y, hasImage,  
