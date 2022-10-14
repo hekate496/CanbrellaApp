@@ -1,0 +1,28 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+
+public class ButtonManager : MonoBehaviour
+{
+    [SerializeField] Button[] activityButtons;
+    [SerializeField] FileManager fileManager;
+    [SerializeField] MoveTest moveTest;
+
+
+    void Start(){
+        int i; 
+        for(i=0; i<5; ++i){
+            var count = i;
+            activityButtons[i].onClick.AddListener(() => buttonClick(count));
+        }
+    }
+
+    void buttonClick(int num)
+    {
+        Debug.Log($"{num}をクリックしたで");
+        fileManager.DrawActivityText(num);
+        moveTest.Move();
+    }
+}
