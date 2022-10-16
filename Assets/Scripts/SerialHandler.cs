@@ -89,4 +89,13 @@ public class SerialHandler : MonoBehaviour
             Debug.LogWarning(e.Message);
         }
     }
+
+    public void WriteLine(string message)
+    {
+        try {
+            serialPort_.WriteLine(message);
+        } catch (System.Exception e) {
+            Debug.LogWarning(e.Message);
+        }
+    }
 }

@@ -15,8 +15,8 @@ public class SerialTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Y)){
-            serialHandler.Write("hello, this is unity");
+        if(Input.GetKey(KeyCode.Y)){
+            serialHandler.WriteLine("1");
         }
         
     }
