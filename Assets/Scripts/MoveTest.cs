@@ -6,7 +6,6 @@ using DG.Tweening;
 public class MoveTest : MonoBehaviour
 {
     private bool isMoved = false;
-    [SerializeField] FileManager fileManager;
 
     void Update()
     {
@@ -21,7 +20,6 @@ public class MoveTest : MonoBehaviour
 
     public void Move(){
         isMoved = true;
-        fileManager.DrawActivityText(1);
         this.transform.DOMove(new Vector3(-7f, 0f, 0f), 0.2f);
     }
 
