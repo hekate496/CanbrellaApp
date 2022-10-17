@@ -8,7 +8,7 @@ public class ButtonManager : MonoBehaviour
 {
     [SerializeField] Button[] activityButtons;
     [SerializeField] FileManager fileManager;
-    [SerializeField] MoveTest moveTest;
+    [SerializeField] MoveUi moveUi;
 
 
     void Start(){
@@ -23,6 +23,6 @@ public class ButtonManager : MonoBehaviour
     {
         Debug.Log($"{num}をクリックしました");
         fileManager.DrawActivityText(num);
-        moveTest.Move();
+        moveUi.MoveLeft();
     }
-}
+}   

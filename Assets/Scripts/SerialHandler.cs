@@ -43,9 +43,9 @@ public class SerialHandler : MonoBehaviour
 
     private void Open()
     {
-        serialPort_ = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
+        //serialPort_ = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
          //または
-         //serialPort_ = new SerialPort(portName, baudRate);
+         serialPort_ = new SerialPort(portName, baudRate);
         serialPort_.Open();
 
         isRunning_ = true;
@@ -85,6 +85,23 @@ public class SerialHandler : MonoBehaviour
     {
         try {
             serialPort_.Write(message);
+        } catch (System.Exception e) {
+            Debug.LogWarning(e.Message);
+        }
+    }
+    public void WriteByte(byte[] buffer)
+    {
+        try {
+            serialPort_.Write(buffer, 0, buffer.Length);
+        } catch (System.Exception e) {
+            Debug.LogWarning(e.Message);
+        }
+    }
+
+    public void WriteChar(char[] buffer)
+    {
+        try {
+            serialPort_.Write(buffer, 0, buffer.Length);
         } catch (System.Exception e) {
             Debug.LogWarning(e.Message);
         }
