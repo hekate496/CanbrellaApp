@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using System.IO;
+using System.Text;
 
 public class FileManager : MonoBehaviour
 {
@@ -31,11 +32,6 @@ public class FileManager : MonoBehaviour
             ReadActivityFile();
         }
 
-        if(Input.GetKeyDown(KeyCode.W)){
-            WriteActivityFile("hoge");
-        }
-
-        //Home画面の表示内容をCanbrellaActivity.txtの内容に応じて変更する
         int i;
         for(i=0; i<allCanbrellaActivityText.Length && i<6; ++i){
             activityButtons[i].SetActive(true);
@@ -48,45 +44,39 @@ public class FileManager : MonoBehaviour
             }
         }
 
-        
+        if(Input.GetKeyDown(KeyCode.W)){
+            WriteActivityFile();
+        }
     }
 
-    //CanbrellaActivity.txtの内容を読み込む
     void ReadActivityFile(){
         canbrellaActivityPath = Application.dataPath + @"\Detas\CanbrellaActivity.txt";
         allCanbrellaActivityText = File.ReadAllLines (canbrellaActivityPath);
         foreach (var text in allCanbrellaActivityText) {
 			Debug.Log ("各行表示： " + text);
 		}
+        Debug.Log("行数： " + allCanbrellaActivityText.Length);
     }
 
-    //CanbrellaActivity.txtに書き込む
-    void WriteActivityFile(string str){
+    void WriteActivityFile(){
         canbrellaActivityPath = Application.dataPath + @"\Detas\CanbrellaActivity.txt";
-        File.AppendAllText(canbrellaActivityPath, str);
-        Debug.Log("CanbrellaActivity.txt に書き込みました");
+        File.AppendAllText(canbrellaActivityPath, "fuga");
+        Debug.Log("Saved");
     }
 
-    //Activity画面の内容を押したボタンに応じて変更する
-    public void DrawActivityText(int buttonNum){
+    public void DrawActivityText(int num){
         string[] InformationName = {"Date  ", "Time  ", "Safety"};
 
-        if(buttonNum < 5){
-            int i;
-            for(i=0; i<3; ++i){
-                textMeshProUGUI = activityInformationText[i].GetComponent<TextMeshProUGUI>();
-                textMeshProUGUI.SetText(string.Format("{0}  :    {1}", InformationName[i], allCanbrellaActivityText[buttonNum].Split(',')[i]));
-            }
-            textMeshProUGUI = activityInformationText[3].GetComponent<TextMeshProUGUI>();
-            textMeshProUGUI.SetText(string.Format("GPS    :    {0}  ; {1}", allCanbrellaActivityText[buttonNum].Split(',')[3], allCanbrellaActivityText[buttonNum].Split(',')[4]));
-
-        }else if(buttonNum == 5){
-            //
-            //SeeMoreActivities... を押した時の処理を書く（未完）
-            //
+        int i;
+        for(i=0; i<3; ++i){
+            textMeshProUGUI = activityInformationText[i].GetComponent<TextMeshProUGUI>();
+            textMeshProUGUI.SetText(string.Format("{0}  :    {1}", InformationName[i], allCanbrellaActivityText[num].Split(',')[i]));
         }
+        textMeshProUGUI = activityInformationText[3].GetComponent<TextMeshProUGUI>();
+        textMeshProUGUI.SetText(string.Format("GPS    :    {0}  ; {1}", allCanbrellaActivityText[num].Split(',')[3], allCanbrellaActivityText[num].Split(',')[4]));
 
     }
+
     
 }
 
