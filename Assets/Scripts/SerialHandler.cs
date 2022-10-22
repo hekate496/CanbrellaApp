@@ -5,10 +5,10 @@ using System.Threading;
 
 public class SerialHandler : MonoBehaviour
 {
-    // public delegate void SerialDataReceivedEventHandler(string message);
-    // public event SerialDataReceivedEventHandler OnDataReceived;
-    public delegate void SerialDataReceivedEventHandler(int byteMessage);
-    public event SerialDataReceivedEventHandler OnByteDataReceived;
+    public delegate void SerialDataReceivedEventHandler(string message);
+    public event SerialDataReceivedEventHandler OnDataReceived;
+    // public delegate void SerialDataReceivedEventHandler(string byteMessage);
+    // public event SerialDataReceivedEventHandler OnByteDataReceived;
 
     //ポート名
     //例
@@ -23,7 +23,7 @@ public class SerialHandler : MonoBehaviour
     private bool isRunning_ = false;
 
     private string message_;
-    private int byteMessage_;
+    private string byteMessage_;
     private bool isNewMessageReceived_ = false;
 
     void Awake()
@@ -34,8 +34,8 @@ public class SerialHandler : MonoBehaviour
     void Update()
     {
         if (isNewMessageReceived_) {
-            //OnDataReceived(message_);
-            OnByteDataReceived(byteMessage_);
+            OnDataReceived(message_);
+            //OnByteDataReceived(byteMessage_);
         }
         isNewMessageReceived_ = false;
 
@@ -59,8 +59,8 @@ public class SerialHandler : MonoBehaviour
 
         isRunning_ = true;
 
-        //thread_ = new Thread(Read);
-        thread_ = new Thread(ReadByte);
+        thread_ = new Thread(Read);
+        //thread_ = new Thread(ReadByte);
         thread_.Start();
     }
 
@@ -95,7 +95,12 @@ public class SerialHandler : MonoBehaviour
     {
         while (isRunning_ && serialPort_ != null && serialPort_.IsOpen) {
             try {
-                byteMessage_ = serialPort_.ReadByte();
+                int i;
+                byteMessage_ = "";
+                for(i=0; i<32; ++i){
+                    byteMessage_ += serialPort_.ReadByte();
+                    byteMessage_ += ',';
+                }
                 isNewMessageReceived_ = true;
             } catch (System.Exception e) {
                 Debug.LogWarning(e.Message);

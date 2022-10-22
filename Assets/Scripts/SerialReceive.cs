@@ -12,8 +12,8 @@ public class SerialReceive : MonoBehaviour
   void Start()
     {
         //信号を受信したときに、そのメッセージの処理を行う
-        //serialHandler.OnDataReceived += OnDataReceived;
-        serialHandler.OnByteDataReceived += OnByteDataReceived;
+        serialHandler.OnDataReceived += OnDataReceived;
+        //serialHandler.OnByteDataReceived += OnByteDataReceived;
     }
 
     //受信した信号(message)に対する処理
@@ -24,7 +24,7 @@ public class SerialReceive : MonoBehaviour
         try
         {
             Debug.Log(data[0]);//Unityのコンソールに受信データを表示
-            fileManager.WriteBitMapFile(data[0]);
+            fileManager.WriteBitMapFile(data[0] + "\n");
         }
         catch (System.Exception e)
         {
@@ -32,12 +32,15 @@ public class SerialReceive : MonoBehaviour
         }
     }
 
-    void OnByteDataReceived(int message)
+    void OnByteDataReceived(string message)
     {
         var data = message;
         try
         {
-            Debug.Log(message);//Unityのコンソールに受信データを表示
+            
+            //Debug.Log(data);//Unityのコンソールに受信データを表示
+            fileManager.WriteBitMapFile(data + "\n");
+            
         }
         catch (System.Exception e)
         {

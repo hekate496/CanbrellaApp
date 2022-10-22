@@ -67,7 +67,7 @@ public class FileManager : MonoBehaviour
 
     public void WriteBitMapFile(string str){
         bitMapFilePath = Application.dataPath + @"\Detas\BitMapFile.txt";
-        File.AppendAllText(bitMapFilePath, str + "\n");
+        File.AppendAllText(bitMapFilePath, str);
         Debug.Log("Saved");
     }
 

@@ -8,7 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Shatalmic/Example/ArduinoHM10Test/ArduinoHM10Test.unity
-    guid: d8c17b59e0cb44d9aa604b9b8c326e9f
+    path: Assets/Scenes/MainScene.unity
+    guid: bab55919535c9b241bde6de493cc43ca
   m_configObjects: {}

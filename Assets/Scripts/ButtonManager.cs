@@ -21,8 +21,6 @@ public class ButtonManager : MonoBehaviour
 
     void buttonClick(int num)
     {
-        Debug.Log($"{num}をクリックしました");
         fileManager.DrawActivityText(num);
-        moveTest.Move();
     }
 }

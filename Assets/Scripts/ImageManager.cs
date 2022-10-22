@@ -8,6 +8,7 @@ public class ImageManager : MonoBehaviour
     void Start()
     {
         ImageCreator.CreateCrossMark(100);
+        ImageCreator.CreateImage(300,200);
 
     }
 
