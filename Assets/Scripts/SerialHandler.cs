@@ -5,8 +5,10 @@ using System.Threading;
 
 public class SerialHandler : MonoBehaviour
 {
-    public delegate void SerialDataReceivedEventHandler(string message);
-    public event SerialDataReceivedEventHandler OnDataReceived;
+    // public delegate void SerialDataReceivedEventHandler(string message);
+    // public event SerialDataReceivedEventHandler OnDataReceived;
+    public delegate void SerialDataReceivedEventHandler(int byteMessage);
+    public event SerialDataReceivedEventHandler OnByteDataReceived;
 
     //ポート名
     //例
@@ -21,6 +23,7 @@ public class SerialHandler : MonoBehaviour
     private bool isRunning_ = false;
 
     private string message_;
+    private int byteMessage_;
     private bool isNewMessageReceived_ = false;
 
     void Awake()
@@ -31,9 +34,14 @@ public class SerialHandler : MonoBehaviour
     void Update()
     {
         if (isNewMessageReceived_) {
-            OnDataReceived(message_);
+            //OnDataReceived(message_);
+            OnByteDataReceived(byteMessage_);
         }
         isNewMessageReceived_ = false;
+
+        if(Input.GetKeyDown(KeyCode.C)){
+            Close();
+        }
     }
 
     void OnDestroy()
@@ -47,10 +55,12 @@ public class SerialHandler : MonoBehaviour
          //または
          //serialPort_ = new SerialPort(portName, baudRate);
         serialPort_.Open();
+        serialPort_.ReadTimeout = 100;
 
         isRunning_ = true;
 
-        thread_ = new Thread(Read);
+        //thread_ = new Thread(Read);
+        thread_ = new Thread(ReadByte);
         thread_.Start();
     }
 
@@ -81,6 +91,18 @@ public class SerialHandler : MonoBehaviour
         }
     }
 
+    private void ReadByte()
+    {
+        while (isRunning_ && serialPort_ != null && serialPort_.IsOpen) {
+            try {
+                byteMessage_ = serialPort_.ReadByte();
+                isNewMessageReceived_ = true;
+            } catch (System.Exception e) {
+                Debug.LogWarning(e.Message);
+            }
+        }
+    }
+
     public void Write(string message)
     {
         try {
@@ -90,12 +112,4 @@ public class SerialHandler : MonoBehaviour
         }
     }
 
-    public void WriteLine(string message)
-    {
-        try {
-            serialPort_.WriteLine(message);
-        } catch (System.Exception e) {
-            Debug.LogWarning(e.Message);
-        }
-    }
 }

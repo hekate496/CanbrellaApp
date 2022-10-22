@@ -13,6 +13,7 @@ public class FileManager : MonoBehaviour
 
     private TextMeshProUGUI textMeshProUGUI;
     private string canbrellaActivityPath;
+    private string bitMapFilePath;
     public string[] allCanbrellaActivityText;
 
 
@@ -61,6 +62,12 @@ public class FileManager : MonoBehaviour
     void WriteActivityFile(){
         canbrellaActivityPath = Application.dataPath + @"\Detas\CanbrellaActivity.txt";
         File.AppendAllText(canbrellaActivityPath, "fuga");
+        Debug.Log("Saved");
+    }
+
+    public void WriteBitMapFile(string str){
+        bitMapFilePath = Application.dataPath + @"\Detas\BitMapFile.txt";
+        File.AppendAllText(bitMapFilePath, str + "\n");
         Debug.Log("Saved");
     }
 
