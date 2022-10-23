@@ -4,15 +4,19 @@ using SVSBluetooth;
 using System.Text;
 
 public class BluetoothConnect : MonoBehaviour {
-    //public Image image; // a picture that displays the status of the bluetooth adapter upon request
+    public Image image; // a picture that displays the status of the bluetooth adapter upon request
     public Text textField; // field for displaying messages and events
-    const string MY_UUID = "00001101-0000-1000-8000-00805F9B34FB"; // UUID constant which is set via script
-    //00001101-0000-1000-8000-00805F9B34FB for arduino
+    
+    // 適切にUUIDとADDRを設定
+    // 以下は、SPP通信することを示すUUIDと、マイコン側で使うbluetoothモジュールHC-05のアドレス
+    const string MY_UUID = "00001101-0000-1000-8000-00805F9B34FB";
+    const string MY_ADDR = "00:22:03:01:3E:DE";
 
     BluetoothForAndroid.BTDevice[] devices;
     string lastConnectedDeviceAddress;
 
     // subscription and unsubscribe from events. You can read more about events in Documentation.pdf
+
     private void OnEnable() {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         BluetoothForAndroid.ReceivedIntMessage += PrintVal1;
@@ -52,6 +56,7 @@ public class BluetoothConnect : MonoBehaviour {
     // Initially, always initialize the plugin.
     public void Initialize() {
         BluetoothForAndroid.Initialize();
+        image.color = Color.green;
     }
 
     // methods for controlling the bluetooth and getting its state
@@ -80,9 +85,10 @@ public class BluetoothConnect : MonoBehaviour {
         BluetoothForAndroid.Disconnect();
     }
     public void ConnectToServerByAddress() {
-        if (devices != null) {
-            if (devices[0].address != "none") BluetoothForAndroid.ConnectToServerByAddress(MY_UUID, devices[0].address);
-        } 
+        // if (devices != null) {
+        //     if (devices[0].address != "none") BluetoothForAndroid.ConnectToServerByAddress(MY_UUID, devices[0].address);
+        // } 
+        BluetoothForAndroid.ConnectToServerByAddress(MY_UUID, MY_ADDR);
     }
     public void ConnectToLastServer() {
         if (lastConnectedDeviceAddress != null) BluetoothForAndroid.ConnectToServerByAddress(MY_UUID, lastConnectedDeviceAddress);
@@ -115,6 +121,7 @@ public class BluetoothConnect : MonoBehaviour {
     void PrintVal4(byte[] val) {
         foreach (var item in val) {
             textField.text += item;
+            textField.text += ",";
         }
         textField.text += "\n";
     }
