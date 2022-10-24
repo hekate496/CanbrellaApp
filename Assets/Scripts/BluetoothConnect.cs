@@ -2,8 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using SVSBluetooth;
 using System.Text;
+using System.IO;
+using System;
+
 
 public class BluetoothConnect : MonoBehaviour {
+    [SerializeField] AppManager appManager;
     public Image image; // a picture that displays the status of the bluetooth adapter upon request
     public Text textField; // field for displaying messages and events
     
@@ -11,6 +15,10 @@ public class BluetoothConnect : MonoBehaviour {
     // 以下は、SPP通信することを示すUUIDと、マイコン側で使うbluetoothモジュールHC-05のアドレス
     const string MY_UUID = "00001101-0000-1000-8000-00805F9B34FB";
     const string MY_ADDR = "00:22:03:01:3E:DE";
+
+    private int lineCount = 0;
+    private string[] nameNum;
+    private string path;
 
     BluetoothForAndroid.BTDevice[] devices;
     string lastConnectedDeviceAddress;
@@ -22,7 +30,10 @@ public class BluetoothConnect : MonoBehaviour {
         BluetoothForAndroid.ReceivedIntMessage += PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage += PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage += PrintVal3;
-        BluetoothForAndroid.ReceivedByteMessage += PrintVal4;
+        //BluetoothForAndroid.ReceivedByteMessage += PrintVal4;
+
+        // 追加
+        BluetoothForAndroid.ReceivedByteMessage += WriteBitMapFile;
 
         BluetoothForAndroid.BtAdapterEnabled += PrintEvent1;
         BluetoothForAndroid.BtAdapterDisabled += PrintEvent2;
@@ -34,12 +45,17 @@ public class BluetoothConnect : MonoBehaviour {
         BluetoothForAndroid.FailConnectToServer += PrintEvent8;
 
         BluetoothForAndroid.DeviceSelected += PrintDeviceData;
+
+        
     }
     private void OnDisable() {
         BluetoothForAndroid.ReceivedIntMessage -= PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage -= PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage -= PrintVal3;
-        BluetoothForAndroid.ReceivedByteMessage -= PrintVal4;
+        //BluetoothForAndroid.ReceivedByteMessage -= PrintVal4;
+
+        // 追加
+        BluetoothForAndroid.ReceivedByteMessage -= WriteBitMapFile;
 
         BluetoothForAndroid.BtAdapterEnabled -= PrintEvent1;
         BluetoothForAndroid.BtAdapterDisabled -= PrintEvent2;
@@ -51,6 +67,8 @@ public class BluetoothConnect : MonoBehaviour {
         BluetoothForAndroid.FailConnectToServer -= PrintEvent8;
 
         BluetoothForAndroid.DeviceSelected -= PrintDeviceData;
+
+        
     }
 
     // Initially, always initialize the plugin.
@@ -124,7 +142,7 @@ public class BluetoothConnect : MonoBehaviour {
             textField.text += ",";
         }
         textField.text += "\n";
-    }
+    }    
     public void GetBondedDevices() {
         devices = BluetoothForAndroid.GetBondedDevices();
         if (devices != null) {
@@ -133,6 +151,33 @@ public class BluetoothConnect : MonoBehaviour {
                 textField.text += devices[i].address;
                 textField.text += "\n";
             }
+        }
+    }
+
+    // 自分で追加したメソッド
+    void WriteBitMapFile(byte[] val){
+        lineCount += 1;
+        if(lineCount == 1){
+            //FileNameNum.txtを読み込んで、それをもとに書き込みファイルのパスを作成
+            nameNum = File.ReadAllLines(appManager.dataPath + @"/Datas/FileNameNum.txt");
+            path = appManager.dataPath + @"/Datas/BitMapFile" + nameNum[0] + ".txt";
+        }
+
+        string str = "";
+        foreach(var item in val){
+            str += item;
+            str += ",";
+        }
+        str += "\n";
+        File.AppendAllText(path, str, Encoding.UTF8);
+
+        if(lineCount == 240){
+            //FileNameNum.txtの値を1増やす
+            int temp = Int32.Parse(nameNum[0]);
+            temp += 1;
+            File.WriteAllText(appManager.dataPath + @"/Datas/FileNameNum.txt", temp.ToString(), Encoding.UTF8);
+
+            lineCount = 0;
         }
     }
 

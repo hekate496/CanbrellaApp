@@ -7,7 +7,7 @@ public class SerialReceive : MonoBehaviour
     //https://qiita.com/yjiro0403/items/54e9518b5624c0030531
     //上記URLのSerialHandler.cのクラス
     public SerialHandler serialHandler;
-    public FileManager fileManager;
+    //public FileManager fileManager;
 
   void Start()
     {
@@ -24,7 +24,7 @@ public class SerialReceive : MonoBehaviour
         try
         {
             Debug.Log(data[0]);//Unityのコンソールに受信データを表示
-            fileManager.WriteBitMapFile(data[0] + "\n");
+            //fileManager.WriteBitMapFile(data[0] + "\n");
         }
         catch (System.Exception e)
         {
@@ -39,7 +39,7 @@ public class SerialReceive : MonoBehaviour
         {
             
             //Debug.Log(data);//Unityのコンソールに受信データを表示
-            fileManager.WriteBitMapFile(data + "\n");
+            //fileManager.WriteBitMapFile(data + "\n");
             
         }
         catch (System.Exception e)

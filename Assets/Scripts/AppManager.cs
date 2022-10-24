@@ -6,22 +6,21 @@ using UnityEngine.UI;
 using System.IO;
 using System.Text;
 
-public class FileManager : MonoBehaviour
+public class AppManager : MonoBehaviour
 {
-    //ビルドしてAndroidアプリにするときはTrueに、PCでの開発中はFlaseにする
+    //ビルドしてAndroidアプリにするときはTrueに、Windowsでの開発中はFlaseにする
     [SerializeField] private bool BuildForAndroid; 
 
     [SerializeField] private GameObject[] activityButtons;
-    
     [SerializeField] private GameObject[] activityButtonTexts;
     [SerializeField] private GameObject[] activityInfoTexts;
     [SerializeField] private ImageController imageController;
-
+    [SerializeField] private Googlemap googlemap;
+    [System.NonSerialized] public string dataPath;
+    [System.NonSerialized] public string activityFilePath;
+    [System.NonSerialized] public string bitMapFilePath;
     private TextMeshProUGUI textMeshProUGUI;
-    private string dataPath;
-    private string activityFilePath;
-    private string bitMapFilePath;
-    public string[] ActivityFileTexts;
+    private string[] ActivityFileTexts;
 
 
     void Start()
@@ -92,6 +91,10 @@ public class FileManager : MonoBehaviour
         File.AppendAllText(activityFilePath, str);
     }
 
+    public void WriteForDebug(){
+        File.AppendAllText(dataPath + @"/Datas/BitMapFileDebug.txt", "hello", Encoding.UTF8);
+    }
+
 
     public void WriteBitMapFile(string str){
         File.AppendAllText(bitMapFilePath, str);
@@ -109,8 +112,10 @@ public class FileManager : MonoBehaviour
         textMeshProUGUI = activityInfoTexts[2].GetComponent<TextMeshProUGUI>();
         textMeshProUGUI.SetText(string.Format("Safety  :    {0}", ActivityFileTexts[num].Split(',')[2]));
 
-        textMeshProUGUI = activityInfoTexts[3].GetComponent<TextMeshProUGUI>();
-        textMeshProUGUI.SetText(string.Format("GPS    :    {0}  ; {1}", ActivityFileTexts[num].Split(',')[3], ActivityFileTexts[num].Split(',')[4]));
+        // GoogleMap用の緯度経度を更新
+        googlemap.lat = float.Parse(ActivityFileTexts[num].Split(',')[3]);
+        googlemap.lng = float.Parse(ActivityFileTexts[num].Split(',')[4]);
+        googlemap.Build();
 
         // safe   : 写真は表示しない
         // danger : 適切な写真を表示する
