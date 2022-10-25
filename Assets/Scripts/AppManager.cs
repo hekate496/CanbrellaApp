@@ -86,20 +86,6 @@ public class AppManager : MonoBehaviour
         
     }
 
-    // ActivityFileの末尾にテキスト追加
-    void WriteActivityFile(string path, string str){
-        File.AppendAllText(activityFilePath, str);
-    }
-
-    public void WriteForDebug(){
-        File.AppendAllText(dataPath + @"/Datas/BitMapFileDebug.txt", "hello", Encoding.UTF8);
-    }
-
-
-    public void WriteBitMapFile(string str){
-        File.AppendAllText(bitMapFilePath, str);
-    }
-
     // ActivityFileの内容をActivity画面に反映
     private void DrawActivityScreen(int num){
 

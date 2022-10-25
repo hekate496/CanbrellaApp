@@ -27,12 +27,13 @@ public class BluetoothConnect : MonoBehaviour {
 
     private void OnEnable() {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        BluetoothForAndroid.ReceivedIntMessage += PrintVal1;
+        // BluetoothForAndroid.ReceivedIntMessage += PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage += PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage += PrintVal3;
         //BluetoothForAndroid.ReceivedByteMessage += PrintVal4;
 
         // 追加
+        BluetoothForAndroid.ReceivedIntMessage += ResetLineCount;
         BluetoothForAndroid.ReceivedByteMessage += WriteBitMapFile;
 
         BluetoothForAndroid.BtAdapterEnabled += PrintEvent1;
@@ -49,12 +50,13 @@ public class BluetoothConnect : MonoBehaviour {
         
     }
     private void OnDisable() {
-        BluetoothForAndroid.ReceivedIntMessage -= PrintVal1;
+        // BluetoothForAndroid.ReceivedIntMessage -= PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage -= PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage -= PrintVal3;
         //BluetoothForAndroid.ReceivedByteMessage -= PrintVal4;
 
         // 追加
+        BluetoothForAndroid.ReceivedIntMessage -= ResetLineCount;
         BluetoothForAndroid.ReceivedByteMessage -= WriteBitMapFile;
 
         BluetoothForAndroid.BtAdapterEnabled -= PrintEvent1;
@@ -161,22 +163,29 @@ public class BluetoothConnect : MonoBehaviour {
             //FileNameNum.txtを読み込んで、それをもとに書き込みファイルのパスを作成
             nameNum = File.ReadAllLines(appManager.dataPath + @"/Datas/FileNameNum.txt");
             path = appManager.dataPath + @"/Datas/BitMapFile" + nameNum[0] + ".txt";
+
+            //FileNameNum.txtの値を1増やす
+            int temp = Int32.Parse(nameNum[0]);
+            temp += 1;
+            File.WriteAllText(appManager.dataPath + @"/Datas/FileNameNum.txt", temp.ToString(), Encoding.UTF8);
         }
 
         string str = "";
-        foreach(var item in val){
-            str += item;
+        // foreach(var item in val){
+        //     str += item;
+        //     str += ",";
+        // }
+        for(int i=0; i<160; ++i){
+            str += val[i];
             str += ",";
         }
         str += "\n";
         File.AppendAllText(path, str, Encoding.UTF8);
 
-        if(lineCount == 240){
-            //FileNameNum.txtの値を1増やす
-            int temp = Int32.Parse(nameNum[0]);
-            temp += 1;
-            File.WriteAllText(appManager.dataPath + @"/Datas/FileNameNum.txt", temp.ToString(), Encoding.UTF8);
+    }
 
+    void ResetLineCount(int val){
+        if(val == 1){
             lineCount = 0;
         }
     }
