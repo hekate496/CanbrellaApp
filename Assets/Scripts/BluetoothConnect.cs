@@ -18,7 +18,8 @@ public class BluetoothConnect : MonoBehaviour {
 
     private int lineCount = 0;
     private string[] nameNum;
-    private string path;
+    private string readPath;
+    private string writePath;
 
     BluetoothForAndroid.BTDevice[] devices;
     string lastConnectedDeviceAddress;
@@ -27,6 +28,8 @@ public class BluetoothConnect : MonoBehaviour {
 
     private void OnEnable() {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+
         // BluetoothForAndroid.ReceivedIntMessage += PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage += PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage += PrintVal3;
@@ -50,6 +53,7 @@ public class BluetoothConnect : MonoBehaviour {
         
     }
     private void OnDisable() {
+
         // BluetoothForAndroid.ReceivedIntMessage -= PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage -= PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage -= PrintVal3;
@@ -71,6 +75,11 @@ public class BluetoothConnect : MonoBehaviour {
         BluetoothForAndroid.DeviceSelected -= PrintDeviceData;
 
         
+    }
+
+    private void Start() {
+        Screen.sleepTimeout = SleepTimeout.NeverSleep; // so that the screen does not go out
+        Initialize(); // plugin initialization
     }
 
     // Initially, always initialize the plugin.
@@ -122,10 +131,9 @@ public class BluetoothConnect : MonoBehaviour {
         BluetoothForAndroid.WriteMessage(100.69f);
     }
     public void WriteMessage3() {
-        BluetoothForAndroid.WriteMessage("Hi !!!");
-    }
-    public void WriteMessage4() {
-        BluetoothForAndroid.WriteMessage(new byte[] { 0, 1, 2, 3, 4, 5 });
+        textField.text += "send s : lineCount ";
+        textField.text += lineCount + "\n";
+        BluetoothForAndroid.WriteMessage("s");
     }
 
     // methods for displaying received messages on the screen
@@ -161,33 +169,44 @@ public class BluetoothConnect : MonoBehaviour {
         lineCount += 1;
         if(lineCount == 1){
             //FileNameNum.txtを読み込んで、それをもとに書き込みファイルのパスを作成
-            nameNum = File.ReadAllLines(appManager.dataPath + @"/Datas/FileNameNum.txt");
-            path = appManager.dataPath + @"/Datas/BitMapFile" + nameNum[0] + ".txt";
+            readPath = appManager.dataPath + @"/Datas/FileNameNum.txt";
+            nameNum = File.ReadAllLines(readPath);
+            writePath = appManager.dataPath + @"/Datas/BitMapFile" + nameNum[0] + ".txt";
+            textField.text += " 1 ";
+
+
+            //書き込みファイル作成
+            File.Create(writePath);
+            textField.text += " 2 ";
 
             //FileNameNum.txtの値を1増やす
             int temp = Int32.Parse(nameNum[0]);
             temp += 1;
-            File.WriteAllText(appManager.dataPath + @"/Datas/FileNameNum.txt", temp.ToString(), Encoding.UTF8);
+            File.WriteAllText(readPath, temp.ToString(), Encoding.UTF8);
+            textField.text += " 3 ";
         }
 
-        string str = "";
-        // foreach(var item in val){
-        //     str += item;
-        //     str += ",";
-        // }
-        for(int i=0; i<160; ++i){
-            str += val[i];
-            str += ",";
+        using (StreamWriter writer = new StreamWriter(writePath, true))
+        {
+            for(int i=0; i<640; ++i){
+                writer.Write(val[i]);
+                writer.Write(",");
+            }
+            writer.Write("\n");
         }
-        str += "\n";
-        File.AppendAllText(path, str, Encoding.UTF8);
 
+        WriteMessage3();
     }
 
     void ResetLineCount(int val){
-        if(val == 1){
-            lineCount = 0;
-        }
+        textField.text += "Last lineCount ";
+        textField.text += lineCount;
+        textField.text += " : receive ";
+        textField.text += val.ToString();
+        textField.text += " : Reset\n";
+        lineCount = 0;
+
+        WriteMessage3();
     }
 
     // methods for displaying events on the screen

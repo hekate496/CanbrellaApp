@@ -112,7 +112,7 @@ namespace SVSBluetooth {
         }
         public static void WriteMessage(byte[] val) {
             if (javaObject != null && val.Length > 0) {
-                javaObject.Call("WriteMessage", instance.ModAddArray(val, 3));
+                javaObject.Call("WriteMessage", val);
             }
         }
         public static BTDevice[] GetBondedDevices() {
@@ -133,7 +133,7 @@ namespace SVSBluetooth {
         public void GetInputData() {
             if (javaObject != null) {
                 byte[] array = javaObject.Call<byte[]>("GetInputData");
-                ConvertFromByte(array);
+				if (ReceivedByteMessage != null) ReceivedByteMessage(array);
             }
         }
 

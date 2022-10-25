@@ -71,6 +71,7 @@ public class Weather : MonoBehaviour
     {
         switch (weather)
         {
+            //ここで送るデータを処理すればよし
             case "01n":
             case "02n":
             case "01d":
