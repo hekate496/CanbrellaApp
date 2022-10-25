@@ -38,7 +38,7 @@ public class Googlemap : MonoBehaviour
         Url += "&zoom=" + zoom;
 
         // 地図画像のサイズ
-        Url += "&size=300x200";
+        Url += "&size=600x400";
 
         if (key != null && key.Length != 0)
         {

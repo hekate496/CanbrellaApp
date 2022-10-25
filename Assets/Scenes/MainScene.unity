@@ -487,7 +487,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 081b733e1fce35346be2d8b28214ef67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BuildForAndroid: 1
+  BuildForAndroid: 0
   activityButtons:
   - {fileID: 1211626855}
   - {fileID: 1100653751}
@@ -3669,7 +3669,7 @@ MonoBehaviour:
   lat: 35.625904
   lng: 139.72685
   key: AIzaSyDmul9eATQXxFM63N7Yn92dXaUeSY-Uj3s
-  zoom: 16
+  zoom: 19
 --- !u!114 &1339952973
 MonoBehaviour:
   m_ObjectHideFlags: 0
