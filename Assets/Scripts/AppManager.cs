@@ -70,15 +70,16 @@ public class AppManager : MonoBehaviour
             activityButtons[i].SetActive(true);
 
             // ボタン上のテキストを更新
+            int underNum = ActivityFileTexts.Length-1 - i;
             textMeshProUGUI = activityButtonTexts[i].GetComponent<TextMeshProUGUI>();
             if(i < 5){
-                textMeshProUGUI.SetText(string.Format("{0}  {1}  {2}", ActivityFileTexts[i].Split(',')[0], ActivityFileTexts[i].Split(',')[1], ActivityFileTexts[i].Split(',')[2]));
+                textMeshProUGUI.SetText(string.Format("{0}  {1}  {2}", ActivityFileTexts[underNum].Split(',')[0], ActivityFileTexts[underNum].Split(',')[1], ActivityFileTexts[underNum].Split(',')[2]));
             }else{
                 textMeshProUGUI.SetText(">> See More Activities");
             }
 
             // safetyがdangerのときはボタンを赤く
-            if(ActivityFileTexts[i].Split(',')[2] == "danger"){
+            if(ActivityFileTexts[underNum].Split(',')[2] == "danger"){
                 activityButtons[i].GetComponent<Image>().color = new Color32(255, 93, 93, 255); 
             }
         }
@@ -88,27 +89,28 @@ public class AppManager : MonoBehaviour
 
     // ActivityFileの内容をActivity画面に反映
     private void DrawActivityScreen(int num){
+        int underNum = ActivityFileTexts.Length -1 -num;
 
         textMeshProUGUI = activityInfoTexts[0].GetComponent<TextMeshProUGUI>();
-        textMeshProUGUI.SetText(string.Format("Date  :    {0}", ActivityFileTexts[num].Split(',')[0]));
+        textMeshProUGUI.SetText(string.Format("Date  :    {0}", ActivityFileTexts[underNum].Split(',')[0]));
 
         textMeshProUGUI = activityInfoTexts[1].GetComponent<TextMeshProUGUI>();
-        textMeshProUGUI.SetText(string.Format("Time  :    {0}", ActivityFileTexts[num].Split(',')[1]));
+        textMeshProUGUI.SetText(string.Format("Time  :    {0}", ActivityFileTexts[underNum].Split(',')[1]));
 
         textMeshProUGUI = activityInfoTexts[2].GetComponent<TextMeshProUGUI>();
-        textMeshProUGUI.SetText(string.Format("Safety  :    {0}", ActivityFileTexts[num].Split(',')[2]));
+        textMeshProUGUI.SetText(string.Format("Safety  :    {0}", ActivityFileTexts[underNum].Split(',')[2]));
 
         // GoogleMap用の緯度経度を更新
-        googlemap.lat = float.Parse(ActivityFileTexts[num].Split(',')[3]);
-        googlemap.lng = float.Parse(ActivityFileTexts[num].Split(',')[4]);
+        googlemap.lat = float.Parse(ActivityFileTexts[underNum].Split(',')[3]);
+        googlemap.lng = float.Parse(ActivityFileTexts[underNum].Split(',')[4]);
         googlemap.Build();
 
         // safe   : 写真は表示しない
         // danger : 適切な写真を表示する
-        if(ActivityFileTexts[num].Split(',')[2] == "safe"){
+        if(ActivityFileTexts[underNum].Split(',')[2] == "safe"){
             imageController.SetNullPicture();
         }else{
-            string bitMapPath = dataPath + @"/Datas/BitMapFile" + ActivityFileTexts[num].Split(',')[5] + ".txt";
+            string bitMapPath = dataPath + @"/Datas/BitMapFile" + ActivityFileTexts[underNum].Split(',')[5] + ".txt";
             imageController.SetPicture(bitMapPath);
         }
 
