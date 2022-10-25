@@ -17,6 +17,7 @@ public class BluetoothConnect : MonoBehaviour {
     const string MY_ADDR = "00:22:03:01:3E:DE";
 
     private int lineCount = 0;
+    private int byteCount = 0;
     private string[] nameNum;
     private string readPath;
     private string writePath;
@@ -30,13 +31,12 @@ public class BluetoothConnect : MonoBehaviour {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
 
-        // BluetoothForAndroid.ReceivedIntMessage += PrintVal1;
+        BluetoothForAndroid.ReceivedIntMessage += PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage += PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage += PrintVal3;
         //BluetoothForAndroid.ReceivedByteMessage += PrintVal4;
 
         // 追加
-        BluetoothForAndroid.ReceivedIntMessage += ResetLineCount;
         BluetoothForAndroid.ReceivedByteMessage += WriteBitMapFile;
 
         BluetoothForAndroid.BtAdapterEnabled += PrintEvent1;
@@ -54,13 +54,12 @@ public class BluetoothConnect : MonoBehaviour {
     }
     private void OnDisable() {
 
-        // BluetoothForAndroid.ReceivedIntMessage -= PrintVal1;
+        BluetoothForAndroid.ReceivedIntMessage -= PrintVal1;
         BluetoothForAndroid.ReceivedFloatMessage -= PrintVal2;
         BluetoothForAndroid.ReceivedStringMessage -= PrintVal3;
         //BluetoothForAndroid.ReceivedByteMessage -= PrintVal4;
 
         // 追加
-        BluetoothForAndroid.ReceivedIntMessage -= ResetLineCount;
         BluetoothForAndroid.ReceivedByteMessage -= WriteBitMapFile;
 
         BluetoothForAndroid.BtAdapterEnabled -= PrintEvent1;
@@ -133,7 +132,8 @@ public class BluetoothConnect : MonoBehaviour {
     public void WriteMessage3() {
         textField.text += "send s : lineCount ";
         textField.text += lineCount + "\n";
-        BluetoothForAndroid.WriteMessage("s");
+        byte[] array = Encoding.UTF8.GetBytes ("s");
+        BluetoothForAndroid.WriteMessage (array); 
     }
 
     // methods for displaying received messages on the screen
@@ -166,47 +166,60 @@ public class BluetoothConnect : MonoBehaviour {
 
     // 自分で追加したメソッド
     void WriteBitMapFile(byte[] val){
-        lineCount += 1;
-        if(lineCount == 1){
-            //FileNameNum.txtを読み込んで、それをもとに書き込みファイルのパスを作成
-            readPath = appManager.dataPath + @"/Datas/FileNameNum.txt";
-            nameNum = File.ReadAllLines(readPath);
-            writePath = appManager.dataPath + @"/Datas/BitMapFile" + nameNum[0] + ".txt";
-            textField.text += " 1 ";
 
-
-            //書き込みファイル作成
-            File.Create(writePath);
-            textField.text += " 2 ";
-
-            //FileNameNum.txtの値を1増やす
-            int temp = Int32.Parse(nameNum[0]);
-            temp += 1;
-            File.WriteAllText(readPath, temp.ToString(), Encoding.UTF8);
-            textField.text += " 3 ";
-        }
-
-        using (StreamWriter writer = new StreamWriter(writePath, true))
-        {
-            for(int i=0; i<640; ++i){
-                writer.Write(val[i]);
-                writer.Write(",");
+        bool isFirst = true;
+        for(int i=0; i<10; ++i){
+            if(val[i] == 't'){
+                isFirst = true;
+            }else{
+                isFirst = false;
+                break;
             }
-            writer.Write("\n");
         }
 
-        WriteMessage3();
-    }
+        if(isFirst){
+            textField.text += "Last lineCount ";
+            textField.text += lineCount;
+            textField.text += " : receive ";
+            textField.text += val[0];
+            textField.text += " : ResetCount\n";
+            lineCount = 0;
+            byteCount = 0;
+        }else{
+            lineCount += 1;
+            if(lineCount == 1){
+                //FileNameNum.txtを読み込んで、それをもとに書き込みファイルのパスを作成
+                readPath = appManager.dataPath + @"/Datas/FileNameNum.txt";
+                nameNum = File.ReadAllLines(readPath);
+                writePath = appManager.dataPath + @"/Datas/BitMapFile" + nameNum[0] + ".txt";
+                textField.text += " 1 ";
 
-    void ResetLineCount(int val){
-        textField.text += "Last lineCount ";
-        textField.text += lineCount;
-        textField.text += " : receive ";
-        textField.text += val.ToString();
-        textField.text += " : Reset\n";
-        lineCount = 0;
 
-        WriteMessage3();
+                //書き込みファイル作成
+                File.Create(writePath);
+                textField.text += " 2 ";
+
+                //FileNameNum.txtの値を1増やす
+                int temp = Int32.Parse(nameNum[0]);
+                temp += 1;
+                File.WriteAllText(readPath, temp.ToString(), Encoding.UTF8);
+                textField.text += " 3 ";
+            }
+
+            using (StreamWriter writer = new StreamWriter(writePath, true))
+            {
+                foreach (var item in val) {
+                    writer.Write(item);
+                    writer.Write(",");
+                    byteCount += 1;
+                    if(byteCount == 640){
+                        writer.Write("\n");
+                        byteCount = 0;
+                    }
+                }
+            }
+        }
+        
     }
 
     // methods for displaying events on the screen
