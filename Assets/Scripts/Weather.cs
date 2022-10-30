@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using System.Text;
+
 
 public class Weather : MonoBehaviour
 {
@@ -10,8 +12,10 @@ public class Weather : MonoBehaviour
     //https://api.openweathermap.org/data/2.5/weather?lat=36.064371&lon=140.059760&appid=35f0730fca9034b3a7addce34d8be98a
     //緯度3606.6437 経度14005.9706
     //public Text resultText;
-    private string message,ido,keido,URL;
+    public string message,ido,keido,URL;
     private string weather;
+    public string weatherStr;
+
 
     // Start is called before the first frame update
     void Start()
@@ -58,7 +62,6 @@ public class Weather : MonoBehaviour
                     for (int j = 7;j<10;j++)
                     {
                         weather += message[i + j];
-                        
                     }
                     Debug.Log(weather);
                     LED(weather);//天気によってLED変える関数
@@ -76,14 +79,15 @@ public class Weather : MonoBehaviour
             case "02n":
             case "01d":
             case "02d":
-                Debug.Log("晴");
+                weatherStr = "1";
                 break;
 
             case "03n":
             case "04n":
             case "03d":
             case "04d":
-                Debug.Log("曇り");
+                weatherStr = "2";
+
                 break;
 
             case "09n":
@@ -92,10 +96,11 @@ public class Weather : MonoBehaviour
             case "09d":
             case "10d":
             case "11d":
-                Debug.Log("雨");
+                weatherStr = "3";
                 break;
 
             default:
+                weatherStr = "0";
                 break;
         }
     }

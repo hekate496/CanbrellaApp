@@ -16,6 +16,9 @@ public class AppManager : MonoBehaviour
     [SerializeField] private GameObject[] activityInfoTexts;
     [SerializeField] private ImageController imageController;
     [SerializeField] private Googlemap googlemap;
+    [SerializeField] private BluetoothConnect bluetoothConnect;
+
+
     [System.NonSerialized] public string dataPath;
     [System.NonSerialized] public string activityFilePath;
     [System.NonSerialized] public string bitMapFilePath;
@@ -44,7 +47,7 @@ public class AppManager : MonoBehaviour
         ActivityFileTexts = File.ReadAllLines (activityFilePath);
 
         // 最初はActivityボタンを非表示にしておく
-        for(int i=0; i<6; ++i){
+        for(int i=0; i<5; ++i){
             activityButtons[i].SetActive(false);
         } 
 
@@ -59,13 +62,14 @@ public class AppManager : MonoBehaviour
 
     void Update()
     {
-        // RキーでActivityFileを読み込む
-        if(Input.GetKeyDown(KeyCode.R)){
+        // 新しい書き込みがあったら更新
+        if(bluetoothConnect.hasNewActivity){
             ActivityFileTexts = File.ReadAllLines (activityFilePath);
+            bluetoothConnect.hasNewActivity = false;
         }
 
         // ActivityFileの内容をHome画面に反映
-        for(int i=0; i<ActivityFileTexts.Length && i<6; ++i){
+        for(int i=0; i<ActivityFileTexts.Length && i<5; ++i){
             // 必要なボタンだけを表示
             activityButtons[i].SetActive(true);
 
@@ -75,12 +79,14 @@ public class AppManager : MonoBehaviour
             if(i < 5){
                 textMeshProUGUI.SetText(string.Format("{0}  {1}  {2}", ActivityFileTexts[underNum].Split(',')[0], ActivityFileTexts[underNum].Split(',')[1], ActivityFileTexts[underNum].Split(',')[2]));
             }else{
-                textMeshProUGUI.SetText(">> See More Activities");
+                textMeshProUGUI.SetText("GPS");
             }
 
             // safetyがdangerのときはボタンを赤く
             if(ActivityFileTexts[underNum].Split(',')[2] == "danger"){
                 activityButtons[i].GetComponent<Image>().color = new Color32(255, 93, 93, 255); 
+            }else{
+                activityButtons[i].GetComponent<Image>().color = new Color32(104, 219, 120, 255);
             }
         }
 
@@ -101,8 +107,12 @@ public class AppManager : MonoBehaviour
         textMeshProUGUI.SetText(string.Format("Safety  :    {0}", ActivityFileTexts[underNum].Split(',')[2]));
 
         // GoogleMap用の緯度経度を更新
-        googlemap.lat = float.Parse(ActivityFileTexts[underNum].Split(',')[3]);
-        googlemap.lng = float.Parse(ActivityFileTexts[underNum].Split(',')[4]);
+        int latInteger = (int)float.Parse(ActivityFileTexts[underNum].Split(',')[3])/100;
+        float latFloat = latInteger + (float.Parse(ActivityFileTexts[underNum].Split(',')[3]) - (float)latInteger * 100.0f)/60.0f;
+        int lonInteger = (int)float.Parse(ActivityFileTexts[underNum].Split(',')[4])/100;
+        float lonFloat = lonInteger + (float.Parse(ActivityFileTexts[underNum].Split(',')[4]) - (float)lonInteger * 100.0f)/60.0f;
+        googlemap.lat = latFloat;//float.Parse(ActivityFileTexts[underNum].Split(',')[3]);////
+        googlemap.lng = lonFloat;//float.Parse(ActivityFileTexts[underNum].Split(',')[4]);////
         googlemap.Build();
 
         // safe   : 写真は表示しない

@@ -16,4 +16,8 @@ public class MoveUI : MonoBehaviour
     public void BackHome(){
         this.transform.DOMove(new Vector3(0f, 0f, 0f), 0.2f);
     }
+
+    public void GoMap(){
+        this.transform.DOMove(new Vector3(0f, 12f, 0f), 0.2f);
+    }
 }

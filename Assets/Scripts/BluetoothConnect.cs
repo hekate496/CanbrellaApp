@@ -18,8 +18,16 @@ public class BluetoothConnect : MonoBehaviour {
 
     private int lineCount = 0;
     private int byteCount = 0;
+    private int commaCount = -1;
+    private bool isDanger = false;
     private bool isActivitySign = false;
     private bool isImageSign = false;
+    private bool isGpsSign = false;
+    public string str;
+    [System.NonSerialized] public bool hasNewActivity = false;
+    [SerializeField] private Googlemap googlemap;
+    [SerializeField] private Weather weather;
+
     private DateTime dateTime;
 
 
@@ -84,12 +92,11 @@ public class BluetoothConnect : MonoBehaviour {
     private void Start() {
         Screen.sleepTimeout = SleepTimeout.NeverSleep; // so that the screen does not go out
         Initialize(); // plugin initialization
+        textField.text += "Initialized \n";
+
     }
 
-    private void Update()
-    {
-        dateTime = DateTime.Now;
-    }
+
 
     // Initially, always initialize the plugin.
     public void Initialize() {
@@ -120,6 +127,9 @@ public class BluetoothConnect : MonoBehaviour {
         BluetoothForAndroid.ConnectToServer(MY_UUID);
     }
     public void Disconnect() {
+        byte[] array = Encoding.UTF8.GetBytes ("d");
+        BluetoothForAndroid.WriteMessage (array);
+
         BluetoothForAndroid.Disconnect();
     }
     public void ConnectToServerByAddress() {
@@ -142,7 +152,7 @@ public class BluetoothConnect : MonoBehaviour {
     public void WriteMessage3() {
         textField.text += "send s : lineCount ";
         textField.text += lineCount + "\n";
-        byte[] array = Encoding.UTF8.GetBytes ("hello!!\n");
+        byte[] array = Encoding.UTF8.GetBytes ("hello");
         BluetoothForAndroid.WriteMessage (array); 
     }
 
@@ -175,8 +185,18 @@ public class BluetoothConnect : MonoBehaviour {
     }
 
     // 自分で追加したメソッド
+    public void sendGpsSign(){
+        textField.text += "send gps sign [g]\n";
+        byte[] array = Encoding.UTF8.GetBytes ("g");
+        BluetoothForAndroid.WriteMessage (array); 
+        isGpsSign = true;
+    }
+
     void WriteBitMapFile(byte[] val){
 
+        textField.text += Encoding.UTF8.GetString(val) + "\n";
+
+        // Activityデータの合図であるかかどうか識別
         for(int i=0; i<10; ++i){
             if(val[i] != 'a'){
                 break;
@@ -188,32 +208,84 @@ public class BluetoothConnect : MonoBehaviour {
         }
 
         if(isActivitySign){
-            //アクティビティデータの処理
-            if(val[0] == 'd'){
-                //FileNameNum.txtを読み込んで、それをもとに書き込みファイルのパスを作成
+            //FileNameNum.txtを読み込んで、それをもとに書き込みファイルのパスを作成
+            if(val[0] == 'd'){       
                 readPath = appManager.dataPath + @"/Datas/FileNameNum.txt";
                 nameNum = File.ReadAllLines(readPath);
                 writePath = appManager.dataPath + @"/Datas/BitMapFile" + nameNum[0] + ".txt";
+                textField.text += "Make BitMapFile : " + nameNum[0] + "\n";
             }
 
+            //アクティビティデータをファイルに書き込み
             using (StreamWriter writer = new StreamWriter(appManager.activityFilePath, true))
             {
-                writer.Write(dateTime.Year.ToString() + "/" + dateTime.Month.ToString() + "/" +dateTime.Day.ToString());
-                writer.Write(",");
-                writer.Write(dateTime.Hour.ToString() + ":" + dateTime.Minute.ToString());
-                writer.Write(",");
-                writer.Write(Encoding.UTF8.GetString(val));
-                if(val[0] == 'd'){
-                    writer.Write(nameNum[0]);
+                if(commaCount == -1){
+                    dateTime = DateTime.Now;
+                    writer.Write(dateTime.ToShortDatePattern());
+                    writer.Write(",");
+                    writer.Write(dateTime.ToShortTimePattern());
+                    writer.Write(",");
+                    if(val[0] == 'd'){
+                        isDanger = true;
+                    }
+                    commaCount += 1;
                 }
-                writer.Write("\n");
 
+                writer.Write(Encoding.UTF8.GetString(val));
+                foreach(var item in val){
+                    if(item == ','){
+                        commaCount += 1;
+                    }
+                }
+                
+                if(commaCount == 3){
+                    if(isDanger){
+                        writer.Write(nameNum[0]);
+                        isDanger = false;
+                    }
+                    writer.Write("\n");
+                    hasNewActivity = true;
+                    commaCount = -1;
+                    isActivitySign = false;
+                    textField.text += "Get Activity Data \n";
+
+                }
+                
             }
 
-            isActivitySign = false;
+        }else if(isGpsSign){
+            // 現在の位置情報取得
+            textField.text += "get gps data and send weather data \n";
+            str = Encoding.UTF8.GetString(val);
+            textField.text += "gps : " + str + "\n";
+
+            int latInteger = (int)float.Parse(str.Split(',')[0])/100;
+            float latFloat = latInteger + (float.Parse(str.Split(',')[0]) - (float)latInteger * 100.0f)/60.0f;
+            int lonInteger = (int)float.Parse(str.Split(',')[1])/100;
+            float lonFloat = lonInteger + (float.Parse(str.Split(',')[1]) - (float)lonInteger * 100.0f)/60.0f;
+            googlemap.lat = latFloat;
+            googlemap.lng = lonFloat;
+            googlemap.Build();
+
+            byte[] array = Encoding.UTF8.GetBytes ("w");
+            BluetoothForAndroid.WriteMessage (array); 
+
+            weather.URL = "https://api.openweathermap.org/data/2.5/weather?lat=" + str.Split(',')[0] + "&lon=" + str.Split(',')[1] + "&appid=35f0730fca9034b3a7addce34d8be98a";
+            weather.StartCoroutine("GET");
+            
+            string weatherStr = "";
+            weatherStr = weather.weatherStr;
+            byte[] array2 = Encoding.UTF8.GetBytes (weatherStr);
+            BluetoothForAndroid.WriteMessage (array2); 
+
+            textField.text += "weather : " + weatherStr + "\n";
+
+            isGpsSign = false;
+
         }else{
-            //画像データの処理
-            for(int i=0; i<10; ++i){
+            // 画像データの合図であるかかどうか識別
+            for(int i=5; i<10; ++i){
+                textField.text += "waiting image sign ";
                 if(val[i] != 'p'){
                     break;
                 }
@@ -235,11 +307,10 @@ public class BluetoothConnect : MonoBehaviour {
                 int temp = Int32.Parse(nameNum[0]);
                 temp += 1;
                 File.WriteAllText(readPath, temp.ToString(), Encoding.UTF8);
-
-
             }else{
                 lineCount += 1;
 
+                // 画像データの書き込み
                 using (StreamWriter writer = new StreamWriter(writePath, true))
                 {
                     foreach (var item in val) {
@@ -247,7 +318,7 @@ public class BluetoothConnect : MonoBehaviour {
                         writer.Write(",");
                         byteCount += 1;
                         if(byteCount == 640){
-                            textField.text += lineCount + "\n";
+                            textField.text += lineCount + " ";
                             writer.Write("\n");
                             byteCount = 0;
                         }
