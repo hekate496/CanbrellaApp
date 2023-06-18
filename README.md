@@ -1,0 +1,5 @@
+# CanbrellaApp
+2022年9月頃、ソニーハッカソンにて制作した傘盗難車追跡システムのリポジトリ
+
+spresense_takeAndSendPicture4 にてマイコンspresense用に書いたプログラムが見れます
+それ以外のファイルはUnityプロジェクト用で Assets/Scripts から書いたコードが見れます
